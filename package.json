@@ -9,9 +9,8 @@
   },
   "dependencies": {
     "axios": "^0.27.2",
-    "bootstrap": "^5.2.0-beta1",
     "core-js": "^3.6.5",
-    "vee-validate": "^4.5.11",
+    "element-plus": "^2.2.17",
     "vue": "^3.0.0",
     "vue-axios": "^3.4.1",
     "vue-router": "^4.0.13",

@@ -3,237 +3,137 @@
     <div class="page-header">
       <h2 class="page-title">{{ pageParams.id ? '編輯' : '新增' }}商品</h2>
     </div>
-    <Form
+    <el-form
       ref="submitFormRef"
-      class="form form-signin w-100 m-auto"
-      :validation-schema="submitFormSchema"
-      v-slot="{ errors }"
-      autocomplete="off">
-      <div class="mb-4 row">
-        <label class="form-label-inline" for="loginEmail">
-          <span class="required-star">*</span>商品名稱
-        </label>
-        <div class="col-12 col-sm">
-          <Field
-            type="text"
-            class="form-control"
-            :class="{ 'is-invalid': errors.productName }"
-            id="productName"
-            name="productName"
-            placeholder="請輸入商品名稱"
-            v-model="submitForm.name" />
-          <ErrorMessage class="error-text text-danger" name="productName" />
+      :model="submitForm"
+      :rules="submitFormRules"
+      label-width="80px">
+      <el-form-item label="商品名稱" prop="name">
+        <el-input v-model="submitForm.name" placeholder="請輸入商品名稱" />
+      </el-form-item>
+      <el-form-item label="商品類型" prop="type">
+        <el-select v-model="submitForm.type" placeholder="請選擇商品類型">
+          <el-option
+            v-for="(item, index) in typeList"
+            :key="index"
+            :label="item.name"
+            :value="item._id" />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="商品品項" prop="options">
+        <div class="option-button-wrap">
+          <el-button type="primary" size="small" @click="showOptionDialog(null)">
+            新增品項
+          </el-button>
         </div>
+        <el-table :data="submitForm.options" stripe empty-text="目前尚無資料">
+          <el-table-column prop="name" label="品項名稱" min-width="200" />
+          <el-table-column prop="price" label="原始價格" align="right">
+            <template #default="scope">
+              <span>${{ scope.row.price }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="discountPrice" label="折扣價格" align="right">
+            <template #default="scope">
+              <span>${{ scope.row.discountPrice }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="count" label="數量" align="right" />
+          <el-table-column label="操作" width="150" fixed="right">
+            <template #default="scope">
+              <el-button size="small" @click.prevent="showOptionDialog(scope.$index)">
+                編輯
+              </el-button>
+              <el-button size="small" @click.prevent="deleteOption(scope.$index)">
+                刪除
+              </el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </el-form-item>
+      <el-form-item label="是否上架">
+        <el-checkbox v-model="submitForm.status" />
+      </el-form-item>
+      <el-form-item label="商品描述">
+        <el-input type="textarea" v-model="submitForm.description" />
+      </el-form-item>
+      <div class="form-bottom-wrap">
+        <el-button @click="router.push({name: 'AdminProductList'})">取消</el-button>
+        <el-button type="primary" @click="sendData">儲存</el-button>
       </div>
-      <div class="mb-4 row">
-        <label class="form-label-inline" for="loginPassword">
-          <span class="required-star">*</span>商品類型
-        </label>
-        <div class="col-12 col-sm">
-          <Field
-            as="select"
-            class="form-select"
-            :class="{ 'is-invalid': errors.productType, 'text-secondary': !submitForm.type }"
-            id="productType"
-            name="productType"
-            v-model="submitForm.type">
-            <option value="" disabled selected>請選擇器材</option>
-            <option value="器材">器材</option>
-          </Field>
-          <ErrorMessage class="error-text text-danger" name="productType" />
-        </div>
-      </div>
-      <div class="mb-4 row">
-        <label class="form-label-inline" for="loginEmail">
-          <span class="required-star">*</span>商品品項
-        </label>
-        <div class="col-12 col-sm">
-          <div class="d-flex justify-content-end">
-            <button class="btn btn-sm btn-primary" @click.prevent="showOptionModal(null)">
-              新增品項
-            </button>
-          </div>
-          <div class="table-responsive">
-            <table class="table table-hover align-middle">
-              <thead>
-                <tr>
-                  <th style="min-width: 200px" scope="col">品項名稱</th>
-                  <th class="text-end text-nowrap" scope="col">原始價格</th>
-                  <th class="text-end text-nowrap" scope="col">折扣價格</th>
-                  <th class="text-end text-nowrap" scope="col">數量</th>
-                  <th style="min-width: 150px;" class="text-nowrap" scope="col">操作</th>
-                </tr>
-              </thead>
-              <tbody v-if="submitForm.options.length">
-                <tr v-for="(item, index) in submitForm.options" :key="index">
-                  <td>{{ item.name }}</td>
-                  <td class="text-end">
-                    ${{ item.price }}
-                  </td>
-                  <td class="text-end">
-                    ${{ item.discountPrice }}
-                  </td>
-                  <td class="text-end">
-                    {{ item.count }}
-                  </td>
-                  <td>
-                    <button class="btn btn-link" @click.prevent="showOptionModal(index)">編輯</button>
-                    <button class="btn btn-link" @click.prevent="deleteOption(index)">刪除</button>
-                  </td>
-                </tr>
-              </tbody>
-              <tbody v-else>
-                <tr>
-                  <td class="text-center" :colspan="5">目前尚無資料</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-      <div class="mb-4 row">
-        <label class="form-label-inline" for="productStatus">是否上架</label>
-        <div class="col-12 col-sm">
-          <input class="form-check-input" type="checkbox" id="productStatus" v-model="submitForm.status">
-        </div>
-      </div>
-      <div class="mb-4 row">
-        <label class="form-label-inline" for="loginEmail">商品描述</label>
-        <div class="col-12 col-sm">
-          <textarea
-            class="form-control"
-            name="productDescription"
-            id="productDescription"
-            cols="30"
-            rows="10"
-            placeholder="請輸入商品描述"
-            v-model="submitForm.description" />
-        </div>
-      </div>
-      <div class="d-flex justify-content-center">
-        <button
-          class="btn btn-lg btn-outline-primary me-2"
-          @click.prevent="router.push({name: 'AdminProductList'})">
-          取消
-        </button>
-        <button class="btn btn-lg btn-primary" type="submit" @click.prevent="sendData">儲存</button>
-      </div>
-    </Form>
-    
-    <div class="modal fade" id="optionModal" tabindex="-1">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="optionModalLabel">{{ optionModalType }}品項</h5>
-            <button type="button" class="btn-close" @click.prevent="hideOptionModal"></button>
-          </div>
-          <div class="modal-body">
-            <Form
-              ref="optionFormRef"
-              class="form form-signin w-100 m-auto"
-              :validation-schema="optionFormSchema"
-              v-slot="{ errors }"
-              autocomplete="off">
-              <div class="mb-4 row">
-                <label class="form-label-inline" for="productOptionName">
-                  <span class="required-star">*</span>品項名稱
-                </label>
-                <div class="col-12 col-sm">
-                  <Field
-                    type="text"
-                    class="form-control"
-                    :class="{ 'is-invalid': errors.productOptionName }"
-                    id="productOptionName"
-                    name="productOptionName"
-                    placeholder="請輸入品項名稱"
-                    v-model="tempOption.name" />
-                  <ErrorMessage class="error-text text-danger" name="productOptionName" />
-                </div>
-              </div>
-              <div class="mb-4 row">
-                <label class="form-label-inline" for="productOptionPrice">
-                  <span class="required-star">*</span>價格
-                </label>
-                <div class="col-12 col-sm">
-                  <Field
-                    type="number"
-                    class="form-control"
-                    :class="{ 'is-invalid': errors.productOptionPrice }"
-                    id="productOptionPrice"
-                    name="productOptionPrice"
-                    placeholder="請輸入價格"
-                    v-model.number="tempOption.price" />
-                  <ErrorMessage class="error-text text-danger" name="productOptionPrice" />
-                </div>
-              </div>
-              <div class="mb-4 row">
-                <label class="form-label-inline" for="productOptionDiscountPrice">
-                  <span class="required-star">*</span>折扣價格
-                </label>
-                <div class="col-12 col-sm">
-                  <Field
-                    type="number"
-                    class="form-control"
-                    :class="{ 'is-invalid': errors.productOptionDiscountPrice }"
-                    id="productOptionDiscountPrice"
-                    name="productOptionDiscountPrice"
-                    placeholder="請輸入折扣價格"
-                    v-model.number="tempOption.discountPrice" />
-                  <ErrorMessage class="error-text text-danger" name="productOptionDiscountPrice" />
-                </div>
-              </div>
-              <div class="mb-4 row">
-                <label class="form-label-inline" for="productOptionCount">
-                  <span class="required-star">*</span>數量
-                </label>
-                <div class="col-12 col-sm">
-                  <Field
-                    type="number"
-                    class="form-control"
-                    :class="{ 'is-invalid': errors.productOptionCount }"
-                    id="productOptionCount"
-                    name="productOptionCount"
-                    placeholder="請輸入數量"
-                    v-model.number="tempOption.count" />
-                  <ErrorMessage class="error-text text-danger" name="productOptionCount" />
-                </div>
-              </div>
-            </Form>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" @click.prevent="hideOptionModal">取消</button>
-            <button type="button" class="btn btn-primary" @click.prevent="editOption">確認</button>
-          </div>
-        </div>
-      </div>
-    </div>
+    </el-form>
+    <el-dialog
+      v-model="optionDialogVisible"
+      :title="`${optionDialogType}品項`"
+      width="50%">
+      <el-form
+        ref="optionFormRef"
+        :model="tempOption"
+        :rules="tempOptionRules"
+        label-width="80px">
+        <el-form-item label="品項名稱" prop="name">
+          <el-input v-model="tempOption.name" placeholder="請輸入品項名稱" />
+        </el-form-item>
+        <el-form-item label="原始價格" prop="price">
+          <el-input type="number" v-model="tempOption.price" placeholder="請輸入原始價格" />
+        </el-form-item>
+        <el-form-item label="折扣價格" prop="discountPrice">
+          <el-input type="number" v-model="tempOption.discountPrice" placeholder="請輸入折扣價格" />
+        </el-form-item>
+        <el-form-item label="數量" prop="count">
+          <el-input type="number" v-model="tempOption.count" placeholder="請輸入數量" />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="hideOptionDialog">取消</el-button>
+          <el-button type="primary" @click="editOption">確認</el-button>
+        </span>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive, onMounted, inject } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { authorization, showAlert, pageLoading } from '@/utils/mixins'
-import schema from '@/utils/vee-validate-schema'
+import { pageLoading } from '@/utils/mixins'
+import { ElMessage } from 'element-plus'
+import type { FormInstance, FormRules } from 'element-plus'
 
-const axios: any = inject('axios')
-const bootstrap: any = inject('bootstrap')
+import {
+  fetchProduct,
+  postProduct,
+  patchProduct
+} from '@/utils/api/back/product'
+import {
+  fetchTypeList
+} from '@/utils/api/back/type'
+import { Option } from '@/utils/api/back/product/FEModel'
+
 const route = useRoute()
 const router = useRouter()
 
 const pageParams = reactive({
   id: route.params.id || null
 })
-interface Option {
-  name: string
-  price: null | number
-  discountPrice: null | number
-  count: null | number
+
+// 取得類型
+const typeList = ref([])
+const getTypeData =  async () => {
+  const { res, err } = await fetchTypeList()
+  if(res) {
+    typeList.value = res.data
+  }
+  if(err) {
+    ElMessage({
+      message: '取得資料失敗',
+      type: 'error'
+    })
+  }
 }
-const submitFormSchema = reactive({
-  productName: schema.productName,
-  productType: schema.productType
-})
+
+const submitFormRef = ref<FormInstance>()
 const submitForm = ref({
   name: '',
   type: '',
@@ -241,15 +141,21 @@ const submitForm = ref({
   description: '',
   status: true
 })
+const submitFormRules = reactive<FormRules>({
+  name: [{ required: true, message: '請輸入商品名稱', trigger: 'blur' }],
+  type: [{ required: true, message: '請選擇商品類型', trigger: 'change' }],
+  options: [{ required: true, message: '請新增商品品項', trigger: 'blur' }]
+})
 
-const getData =  async() => {
+const getData =  async () => {
   pageLoading(true)
-  const url = `${process.env.VUE_APP_XLC_API}product/${pageParams.id}`
-  try {
-    const res = await axios.get(url, {
-      ...authorization()
-    })
-    const { name, type, options, description, status } = res.data.data
+  const restfulParam = {
+    productId: pageParams.id as string
+  }
+  const { res, err } = await fetchProduct(restfulParam)
+  if(res) {
+    pageLoading(false)
+    const { name, type, options, description, status } = res.data
     submitForm.value = {
       name,
       type,
@@ -257,38 +163,68 @@ const getData =  async() => {
       description,
       status
     }
+  }
+  if(err) {
     pageLoading(false)
-  } catch (err: any) {
-    pageLoading(false)
-    showAlert('danger', '取得資料失敗')
+    ElMessage({
+      message: '取得資料失敗',
+      type: 'error'
+    })
   }
 }
 
 // 品項彈窗
-const optionFormSchema = reactive({
-  productOptionName: schema.productOptionName,
-  productOptionPrice: schema.productOptionPrice,
-  productOptionDiscountPrice: schema.productOptionDiscountPrice,
-  productOptionCount: schema.productOptionCount
-})
+const optionDialogVisible = ref(false)
+const optionDialogType = ref('')
+let tempOptionIndex = null as number | null
+const optionFormRef = ref<FormInstance>()
 const tempOption = ref({
   name: '',
   price: null as number | null,
   discountPrice: null as number | null,
   count: null as number | null
 })
-const optionModalType = ref('')
-let tempOptionIndex = null as number | null
-const optionFormRef = ref<any>(null)
-const optionModal = ref<any>(null)
+const validatePrice = (rule: any, value: any, callback: any) => {
+  if (!value) {
+    callback(new Error('請輸入原始價格'))
+  } else if (value < 0) {
+    callback(new Error('原始價格不可小於 0'))
+  } else {
+    callback()
+  }
+}
+const validateDiscountPrice = (rule: any, value: any, callback: any) => {
+  if (!value) {
+    callback(new Error('請輸入折扣價格'))
+  } else if (value < 0) {
+    callback(new Error('折扣價格不可小於 0'))
+  } else {
+    callback()
+  }
+}
+const validateCount = (rule: any, value: any, callback: any) => {
+  if (!value) {
+    callback(new Error('請輸入數量'))
+  } else if (value < 0) {
+    callback(new Error('數量不可小於 0'))
+  } else {
+    callback()
+  }
+}
+const tempOptionRules = reactive<FormRules>({
+  name: [{ required: true, message: '請輸入品項名稱', trigger: 'blur' }],
+  price: [{ validator: validatePrice, required: true, trigger: 'blur' }],
+  discountPrice: [{ validator: validateDiscountPrice, required: true, trigger: 'blur' }],
+  count: [{ validator: validateCount, required: true, trigger: 'blur' }]
+})
 
-const showOptionModal = (index: number | null = null) => {
+const showOptionDialog = (index: number | null = null) => {
   tempOptionIndex = index
   if(tempOptionIndex !== null) {
-    optionModalType.value = '編輯'
+    optionDialogType.value = '編輯'
     tempOption.value = { ...submitForm.value.options[tempOptionIndex] }
   } else {
-    optionModalType.value = '新增'
+    optionDialogType.value = '新增'
     tempOption.value = {
       name: '',
       price: null,
@@ -296,54 +232,83 @@ const showOptionModal = (index: number | null = null) => {
       count: null
     }
   }
-  optionModal.value.show()
+  optionDialogVisible.value = true
 }
-const hideOptionModal = async () => {
-  optionModal.value.hide()
-  await optionFormRef.value.resetForm()
+const hideOptionDialog = async () => {
+  optionDialogVisible.value = false
+  await optionFormRef.value?.clearValidate()
 }
 
-const editOption = async() => {
-  const { valid } = await optionFormRef.value.validate()
-  if(!valid) return false
-  if(tempOptionIndex !== null) {
-    submitForm.value.options[tempOptionIndex] = { ...tempOption.value }
-  } else {
-    submitForm.value.options.push(tempOption.value)
-  }
-  optionModal.value.hide()
+const editOption = async () => {
+  await optionFormRef.value?.validate(async (valid, fields) => {
+    if (valid) {
+      if(tempOptionIndex !== null) {
+        submitForm.value.options[tempOptionIndex] = { ...tempOption.value }
+      } else {
+        submitForm.value.options.push(tempOption.value)
+      }
+      optionDialogVisible.value = false
+    } else {
+      console.log('error submit!', fields)
+    }
+  })
 }
 const deleteOption = (index: number) => {
   submitForm.value.options.splice(index, 1)
 }
 
 // 送出表單
-const sendData =  async() => {
-  pageLoading(true)
-  const patchUrl = `${process.env.VUE_APP_XLC_API}product/${pageParams.id}`
-  const postUrl = `${process.env.VUE_APP_XLC_API}product`
-  const params = submitForm.value
-  try {
-    if(pageParams.id) {
-      await axios.patch(patchUrl, params, {
-        ...authorization()
-      })
+const sendData = async () => {
+  await submitFormRef.value?.validate(async (valid, fields) => {
+    if (valid) {
+      pageLoading(true)
+      const params = submitForm.value
+      if(pageParams.id) {
+        const restfulParam = {
+          productId: pageParams.id as string
+        }
+        const { res, err } = await patchProduct(restfulParam, params)
+        if(res) {
+          pageLoading(false)
+          ElMessage({
+            message: '送出資料成功',
+            type: 'success'
+            })
+          router.push({name: 'AdminProductList'})
+        }
+        if(err) {
+          pageLoading(false)
+          ElMessage({
+            message: '送出資料失敗',
+            type: 'error'
+          })
+        }
+      } else {
+        const { res, err } = await postProduct(params)
+        if(res) {
+          pageLoading(false)
+          ElMessage({
+            message: '送出資料成功',
+            type: 'success'
+          })
+          router.push({name: 'AdminProductList'})
+        }
+        if(err) {
+          pageLoading(false)
+          ElMessage({
+            message: '送出資料失敗',
+            type: 'error'
+          })
+        }
+      }
     } else {
-      await axios.post(postUrl, params, {
-        ...authorization()
-      })
+      console.log('error submit!', fields)
     }
-    pageLoading(false)
-    showAlert('success', '送出資料成功')
-    router.push({name: 'AdminProductList'})
-  } catch (err: any) {
-    pageLoading(false)
-    showAlert('danger', `送出資料失敗，${err.response.data.message}`)
-  }
+  })
 }
 
-onMounted(() => {
-  optionModal.value = new bootstrap.Modal(document.getElementById('optionModal'))
+onMounted(async () => {
+  await getTypeData()
   if(pageParams.id) {
     getData()
   }
@@ -352,8 +317,13 @@ onMounted(() => {
 </script>
 
 <style scoped lang="scss">
-.form-label-inline {
-  width: 120px;
-  text-align: right;
+.option-button-wrap {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+}
+.form-bottom-wrap {
+  display: flex;
+  justify-content: center;
 }
 </style>

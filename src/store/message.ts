@@ -47,10 +47,10 @@ export default {
     showMessage(context: any, payload: any) {
       const { commit, state } = context
       const timestamp = commit('createMessage', payload)
-      setTimeout(() => {
-        const index = state.messages.findIndex((item: Message) => item.timestamp === timestamp)
-        commit('removeMessage', index)
-      }, 3000)
+      // setTimeout(() => {
+      //   const index = state.messages.findIndex((item: Message) => item.timestamp === timestamp)
+      //   commit('removeMessage', index)
+      // }, 3000)
     },
   }
 }

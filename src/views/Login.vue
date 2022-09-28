@@ -1,111 +1,136 @@
 <template>
-  <div class="page-wrap d-flex align-item-center">
-    <Form
+  <div class="page-wrap">
+    <div class="title">請登入</div>
+    <el-form
       ref="submitFormRef"
-      class="form form-signin w-100 m-auto"
-      :validation-schema="submitFormSchema"
-      v-slot="{ errors }"
-      autocomplete="off">
-      <h1 class="h3 mb-5 fw-normal">請登入</h1>
-      <div class="form-floating mb-4">
-        <Field
-          type="email"
-          class="form-control"
-          :class="{ 'is-invalid': errors.loginEmail }"
-          id="loginEmail"
-          name="loginEmail"
-          placeholder="請輸入 Email"
-          v-model="submitForm.email" />
-        <label for="loginEmail">Email</label>
-      </div>
-      <div class="form-floating">
-        <Field
-          type="password"
-          class="form-control"
-          :class="{ 'is-invalid': errors.loginPassword }"
-          id="loginPassword"
-          name="loginPassword"
-          placeholder="請輸入密碼"
-          v-model="submitForm.password" />
-        <label for="loginPassword">密碼</label>
-      </div>
-      <div class="mt-5">
-        <button class="w-100 btn btn-lg btn-primary mb-3" type="submit" @click.prevent="login">登入</button>
-        <router-link :to="{name: 'SignUp'}">註冊</router-link>
-      </div>
-    </Form>
+      class="form-signin"
+      :model="submitForm"
+      :rules="submitFormRules"
+      label-position="top">
+      <el-form-item label="Email" prop="email">
+        <el-input v-model="submitForm.email" placeholder="請輸入 Email" />
+      </el-form-item>
+      <el-form-item label="密碼" prop="password">
+        <el-input v-model="submitForm.password" placeholder="請輸入密碼" />
+      </el-form-item>
+      <el-button class="loginBtn" type="primary" round @click="handleLogin">登入</el-button>
+      <el-link @click="router.push({name: 'SignUp'})">註冊</el-link>
+    </el-form>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive, inject } from 'vue'
+import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
-import schema from '@/utils/vee-validate-schema'
-import { authorization, showAlert, pageLoading } from '@/utils/mixins'
+import { ElMessage } from 'element-plus'
+import type { FormInstance, FormRules } from 'element-plus'
+import { pageLoading } from '@/utils/mixins'
+import { login, fetchUserProfile } from '@/utils/api/back/login'
 
-const axios: any = inject('axios')
 const router = useRouter()
 
 let isSending = false
-const submitFormSchema = reactive({
-  loginEmail: schema.loginEmail,
-  loginPassword: schema.loginPassword
-})
-const submitFormRef = ref(null as any)
+const submitFormRef = ref<FormInstance>()
 const submitForm = reactive({
   email: '',
   password: ''
 })
+const validateEmail = (rule: any, value: any, callback: any) => {
+  if (!value) {
+    callback(new Error('請輸入 Email'))
+  } else {
+    callback()
+  }
+}
+const validatePassword = (rule: any, value: any, callback: any) => {
+  if (!value) {
+    callback(new Error('請輸入密碼'))
+  } else {
+    callback()
+  }
+}
+const submitFormRules = reactive<FormRules>({
+  email: [{ validator: validateEmail, trigger: 'blur' }],
+  password: [{ validator: validatePassword, trigger: 'blur' }]
+})
 
-const login = async() => {
-  if(isSending) return false
-  const { valid } = await submitFormRef.value.validate()
-  if(!valid) {
-    showAlert('danger', '請輸入 Email 與密碼')
-    return false
-  }
-  isSending = true
-  pageLoading(true)
-  const loginUrl = `${process.env.VUE_APP_XLC_API}users/sign_in`
-  const getUserUrl = `${process.env.VUE_APP_XLC_API}users/profile`
-  const { email, password } = submitForm
-  const params = {
-    email,
-    password
-  }
-  try {
-    // 登入取得 token
-    const res1 = await axios.post(loginUrl, params)
-    const token = res1.data.data
-    localStorage.setItem('token', token)
-    
-    // 取得個人檔案
-    const res2 = await axios.get(getUserUrl, authorization())
-    isSending = false
-    pageLoading(false)
-    
-    localStorage.setItem('userInfo', JSON.stringify({
-      token,
-      name: res2.data.data.name,
-      photo: res2.data.data.photo
-    }))
-    showAlert('success', '登入成功')
-    router.push('/')
-  } catch (err: any) {
-    isSending = false
-    pageLoading(false)
-    showAlert('danger', `登入失敗，${err.response.data.message}`)
-  }
+const handleLogin = async() => {
+  if(!submitFormRef.value) return
+  if(isSending) return 
+  await submitFormRef.value.validate(async (valid, fields) => {
+    if (valid) {
+      isSending = true
+      pageLoading(true)
+      // 登入取得 token
+      let token = ''
+      {
+        const { res, err } = await login(submitForm)
+        if(res) {
+          token = res.data
+          localStorage.setItem('token', token)
+        }
+        if(err) {
+          isSending = false
+          pageLoading(false)
+          ElMessage({
+            message: `登入失敗，${err.data.message}`,
+            type: 'error'
+          })
+          return
+        }
+      }
+      // 取得個人檔案
+      {
+        const { res, err} = await fetchUserProfile()
+        if(res) {
+          isSending = false
+          pageLoading(false)
+          const { name, photo } = res.data
+          localStorage.setItem('userInfo', JSON.stringify({
+            token,
+            name,
+            photo
+          }))
+          ElMessage({
+            message: '登入成功',
+            type: 'success'
+          })
+          router.push({name: 'AdminProductList'})
+        }
+        if(err) {
+          isSending = false
+          pageLoading(false)
+          ElMessage({
+            message: '取得個人資料失敗',
+            type: 'error'
+          })
+        }
+      }
+    } else {
+      console.log('error submit!', fields)
+    }
+  })
 }
 </script>
 
 <style scoped lang="scss">
 .page-wrap {
   height: 100vh;
-}
-.form-signin {
-  max-width: 330px;
-  padding: 15px;
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  .title {
+    @include font-h2;
+  }
+  .form-signin {
+    width: 330px;
+    padding: 15px;
+    text-align: center;
+    .loginBtn {
+      width: 100%;
+      margin-top: 10px;
+    }
+  }
 }
 </style>

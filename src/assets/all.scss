@@ -1,9 +1,4 @@
-@import "~bootstrap/scss/functions";
-@import "./helpers/variables";
-@import "~bootstrap/scss/maps";
-@import "~bootstrap/scss/mixins";
-@import "~bootstrap/scss/root";
-@import "~bootstrap/scss/bootstrap";
+@import "./helpers/mixin";
 
 .page-content {
   padding: 20px;
@@ -13,7 +8,6 @@
     margin-bottom: 20px;
   }
 }
-.required-star {
-  color: $red;
-  margin-right: 5px;
+a {
+  text-decoration: none;
 }

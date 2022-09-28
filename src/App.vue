@@ -1,14 +1,18 @@
 <template>
-  <Loading />
-  <Alert />
-  <Confirm />
-  <router-view />
+  <div class="main" v-loading="pageLoading">
+    <router-view />
+  </div>
 </template>
 <script lang="ts" setup>
-import Alert from './components/Alert.vue'
-import Confirm from './components/Confirm.vue'
-import Loading from './components/Loading.vue'
+import { computed } from 'vue'
+import store from '@/store'
+
+const pageLoading = computed(() => {
+  return store.state.isLoading
+})
 </script>
-<style lang="scss">
-@import "./assets/all";
+<style lang="scss" scope>
+.main {
+  height: 100vh;
+}
 </style>
