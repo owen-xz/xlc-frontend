@@ -1,27 +1,20 @@
 <template>
   <div class="navbar">
-    <el-menu
-      class="navbar"
-      mode="horizontal"
-      :ellipsis="false"
-      @select="handleSelect"
-    >
-      <div class="logo">Title</div>
-      <el-dropdown trigger="click" popper-class="navbar-popper">
-        <span class="el-dropdown-link">
-          <span class="userName">{{ userName }}</span>
-          <el-icon>
-            <arrow-down />
-          </el-icon>
-        </span>
-        <template #dropdown>
-          <el-dropdown-menu>
-            <el-dropdown-item @click="router.push('/')">首頁</el-dropdown-item>
-            <el-dropdown-item>登出</el-dropdown-item>
-          </el-dropdown-menu>
-        </template>
-      </el-dropdown>
-    </el-menu>
+    <div class="logo">Title</div>
+    <el-dropdown trigger="click" popper-class="navbar-popper">
+      <span class="el-dropdown-link">
+        <span class="userName">{{ userName }}</span>
+        <el-icon>
+          <arrow-down />
+        </el-icon>
+      </span>
+      <template #dropdown>
+        <el-dropdown-menu>
+          <el-dropdown-item @click="router.push('/')">首頁</el-dropdown-item>
+          <el-dropdown-item>登出</el-dropdown-item>
+        </el-dropdown-menu>
+      </template>
+    </el-dropdown>
   </div>
 </template>
 
@@ -47,6 +40,7 @@ onMounted(() => {
     align-items: center;
     width: 100%;
     height: 60px;
+    box-shadow: 0 1px 4px rgba(0, 21, 41, 0.4);
     .logo {
       margin-left: 20px;
       font-size: 24px;

@@ -1,18 +1,20 @@
 import { createStore } from 'vuex'
-import messageModules from './message'
 
 export default createStore({
   state: {
-    isLoading: false
+    isLoading: false,
+    isSidebarCollapse: false
   },
   mutations: {
     setIsLoading(state, payload) {
       state.isLoading = payload
+    },
+    setIsSidebarCollapse(state, payload) {
+      state.isSidebarCollapse = payload
     }
   },
   actions: {
   },
   modules: {
-    messageModules
   }
 })

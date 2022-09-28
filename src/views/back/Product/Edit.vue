@@ -22,7 +22,7 @@
       </el-form-item>
       <el-form-item label="商品品項" prop="options">
         <div class="option-button-wrap">
-          <el-button type="primary" size="small" @click="showOptionDialog(null)">
+          <el-button type="primary" @click="showOptionDialog(null)">
             新增品項
           </el-button>
         </div>
@@ -308,9 +308,12 @@ const sendData = async () => {
 }
 
 onMounted(async () => {
+  pageLoading(true)
   await getTypeData()
   if(pageParams.id) {
     getData()
+  } else {
+    pageLoading(false)
   }
 })
  
