@@ -4,9 +4,9 @@ import router from './router'
 import store from './store'
 import axios from 'axios'
 import VueAxios from 'vue-axios'
+import './assets/element-variables.scss'
 import ElementPlus from 'element-plus'
 import './assets/all.scss'
-import 'element-plus/dist/index.css'
 
 const app = createApp(App)
 app.use(store)

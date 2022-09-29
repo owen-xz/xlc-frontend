@@ -1,0 +1,29 @@
+/* just override what you need */
+$--colors: (
+  'primary': (
+    'base': #3faa88
+  ),
+  'success': (
+    'base': #2e92ff
+  ),
+  'warning': (
+    'base': #ff814e
+  ),
+  'danger': (
+    'base': #f0142f
+  ),
+  'error': (
+    'base': #f0142f
+  ),
+  'info': (
+    'base': #7e84a3
+  )
+);
+
+/* refer to https://github.com/element-plus/element-plus/discussions/3661#discussion-3593207 */
+@forward "element-plus/theme-chalk/src/common/var.scss" with
+  (
+    $colors: $--colors
+  );
+
+@use "element-plus/theme-chalk/src/index.scss" as *;

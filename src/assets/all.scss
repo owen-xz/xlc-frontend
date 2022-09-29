@@ -1,3 +1,4 @@
+@import "./helpers/variable";
 @import "./helpers/mixin";
 
 body {
@@ -13,4 +14,20 @@ body {
 }
 a {
   text-decoration: none;
+}
+.filter {
+  border-bottom: 1px solid $systemBorderGray;
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  .filter-title {
+    @include font-h3;
+    margin-bottom: 15px;
+  }
+  .filter-footer {
+    display: flex;
+    justify-content: flex-end;
+  }
+  .el-select {
+    width: 100%;
+  }
 }

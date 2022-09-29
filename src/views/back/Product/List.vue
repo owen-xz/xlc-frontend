@@ -1,5 +1,32 @@
 <template>
   <div class="page-content">
+    <div class="filter">
+      <div class="filter-title">依下方條件查詢</div>
+      <el-form label-position="top">
+        <el-row :gutter="20">
+          <el-col :span="6">
+            <el-form-item label="商品名稱">
+              <el-input v-model="filterData.keyword" placeholder="請輸入商品名稱" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="6">
+            <el-form-item label="商品類型">
+              <el-select v-model="filterData.type" placeholder="請選擇商品類型">
+                <el-option
+                  v-for="(item, index) in typeList"
+                  :key="index"
+                  :label="item.name"
+                  :value="item._id" />
+              </el-select>
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </el-form>
+      <div class="filter-footer">
+        <el-button type="primary" @click="search">查詢</el-button>
+        <el-button @click="clear">清除</el-button>
+      </div>
+    </div>
     <div class="page-header">
       <div class="page-title">商品列表</div>
       <el-button type="primary" @click="goEdit(null)">新增商品</el-button>
@@ -75,25 +102,33 @@
 import { ref, reactive, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { pageLoading } from '@/utils/mixins'
+import { pageLoading, getTypeList } from '@/utils/mixins'
 import { fetchProductList, deleteProduct } from '@/utils/api/back/product'
+import store from '@/store'
 
 const router = useRouter()
 
+const typeList = computed(() => store.state.typeList)
 const pageParams = reactive({
-  offset: 0,
   maxCount: 10,
   currentPage: 1,
   totalPage: 1,
   total: 0
 })
+const filterData = ref({
+  keyword: '',
+  type: ''
+})
 const searchParams = computed(() => {
-  const { currentPage, totalPage, total, ...pageQueries } = pageParams
-  pageQueries.offset = (currentPage - 1) * pageQueries.maxCount
+  const { currentPage, maxCount } = pageParams
+  const offset = (currentPage - 1) * maxCount
   return {
-    ...pageQueries
+    offset,
+    maxCount,
+    ...filterData.value
   }
 })
+
 const listData = ref([])
 const selectedOptionsIndex = ref([] as number[])
 const getList =  async () => {
@@ -115,10 +150,24 @@ const getList =  async () => {
 }
 
 // 換頁
-  const currentChange = (e: number) => {
-    pageParams.currentPage = e
-    getList()
+const currentChange = (e: number) => {
+  pageParams.currentPage = e
+  getList()
+}
+
+// 搜尋
+const search = () => {
+  currentChange(1)
+}
+
+// 清除
+const clear = () => {
+  filterData.value = {
+    keyword: '',
+    type: ''
   }
+  currentChange(1)
+}
 
 const goEdit = (id: string | null) => {
   if(id !== null) {
@@ -168,6 +217,7 @@ const handleDeleteProduct = async (id: string) => {
 }
 
 onMounted(() => {
+  getTypeList()
   getList()
 })
 </script>

@@ -95,20 +95,18 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { pageLoading } from '@/utils/mixins'
+import { pageLoading, getTypeList } from '@/utils/mixins'
 import { ElMessage } from 'element-plus'
 import type { FormInstance, FormRules } from 'element-plus'
+import store from '@/store'
 
 import {
   fetchProduct,
   postProduct,
   patchProduct
 } from '@/utils/api/back/product'
-import {
-  fetchTypeList
-} from '@/utils/api/back/type'
 import { Option } from '@/utils/api/back/product/FEModel'
 
 const route = useRoute()
@@ -119,19 +117,7 @@ const pageParams = reactive({
 })
 
 // 取得類型
-const typeList = ref([])
-const getTypeData =  async () => {
-  const { res, err } = await fetchTypeList()
-  if(res) {
-    typeList.value = res.data
-  }
-  if(err) {
-    ElMessage({
-      message: '取得資料失敗',
-      type: 'error'
-    })
-  }
-}
+const typeList = computed(() => store.state.typeList)
 
 const submitFormRef = ref<FormInstance>()
 const submitForm = ref({
@@ -308,12 +294,9 @@ const sendData = async () => {
 }
 
 onMounted(async () => {
-  pageLoading(true)
-  await getTypeData()
+  getTypeList()
   if(pageParams.id) {
     getData()
-  } else {
-    pageLoading(false)
   }
 })
  
