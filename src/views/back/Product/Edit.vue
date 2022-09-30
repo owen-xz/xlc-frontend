@@ -75,13 +75,13 @@
           <el-input v-model="tempOption.name" placeholder="請輸入品項名稱" />
         </el-form-item>
         <el-form-item label="原始價格" prop="price">
-          <el-input type="number" v-model="tempOption.price" placeholder="請輸入原始價格" />
+          <el-input type="number" v-model.number="tempOption.price" placeholder="請輸入原始價格" />
         </el-form-item>
         <el-form-item label="折扣價格" prop="discountPrice">
-          <el-input type="number" v-model="tempOption.discountPrice" placeholder="請輸入折扣價格" />
+          <el-input type="number" v-model.number="tempOption.discountPrice" placeholder="請輸入折扣價格" />
         </el-form-item>
         <el-form-item label="數量" prop="count">
-          <el-input type="number" v-model="tempOption.count" placeholder="請輸入數量" />
+          <el-input type="number" v-model.number="tempOption.count" placeholder="請輸入數量" />
         </el-form-item>
       </el-form>
       <template #footer>
