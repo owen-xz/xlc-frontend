@@ -16,7 +16,7 @@
                   v-for="(item, index) in typeList"
                   :key="index"
                   :label="item.name"
-                  :value="item._id" />
+                  :value="item.id" />
               </el-select>
             </el-form-item>
           </el-col>
@@ -101,14 +101,16 @@
 <script lang="ts" setup>
 import { ref, reactive, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { useStore } from 'vuex'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { pageLoading, getTypeList } from '@/utils/mixins'
+import { pageLoading, getPageList } from '@/utils/mixins'
 import { fetchProductList, deleteProduct } from '@/utils/api/back/product'
-import store from '@/store'
 
 const router = useRouter()
+const store = useStore()
 
-const typeList = computed(() => store.state.typeList)
+const pageList = computed(() => store.state.pageList)
+const typeList = computed(() => pageList.value.product ? pageList.value.product.type : [])
 const pageParams = reactive({
   maxCount: 10,
   currentPage: 1,
@@ -217,7 +219,7 @@ const handleDeleteProduct = async (id: string) => {
 }
 
 onMounted(() => {
-  getTypeList()
+  getPageList('product')
   getList()
 })
 </script>

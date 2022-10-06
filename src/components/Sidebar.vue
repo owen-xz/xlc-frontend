@@ -17,7 +17,7 @@
 <script lang="ts" setup>
 import { ref, computed } from 'vue'
 import { useRoute } from 'vue-router'
-import store from '@/store'
+import { useStore } from 'vuex'
 import {
   Menu as IconMenu,
   ArrowLeft,
@@ -25,6 +25,7 @@ import {
 } from '@element-plus/icons-vue'
 
 const route = useRoute()
+const store = useStore()
 
 const defaultActive = ref(route.path)
 const isCollapse = computed(() => store.state.isSidebarCollapse)

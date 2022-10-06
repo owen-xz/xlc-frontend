@@ -1,12 +1,21 @@
 import { createStore } from 'vuex'
-import { fetchTypeList } from '@/utils/api/back/type'
+import { fetchPageList } from '@/utils/api/back/common'
 import { ElMessage } from 'element-plus'
+
+interface PageList {
+  [key: string]: {
+    [key: string]: {
+      id: number
+      name: string
+    }[]
+  }
+}
 
 export default createStore({
   state: {
     isLoading: false,
     isSidebarCollapse: false,
-    typeList: []
+    pageList: {} as PageList
   },
   mutations: {
     setIsLoading(state, payload) {
@@ -15,19 +24,25 @@ export default createStore({
     setIsSidebarCollapse(state, payload) {
       state.isSidebarCollapse = payload
     },
-    setTypeList(state, payload) {
-      state.typeList = payload
+    setPageList(state, payload) {
+      state.pageList[payload.featureName] = payload.pageList
     }
   },
   actions: {
-    async getTypeList({ commit }) {
-      const { res, err } = await fetchTypeList()
+    async getPageList({ commit }, payload) {
+      const params = {
+        featureName: payload
+      }
+      const { res, err } = await fetchPageList(params)
       if(res) {
-        commit('setTypeList', res.data)
+        commit('setPageList', {
+          featureName: payload,
+          pageList: res.data
+        })
       }
       if(err) {
         ElMessage({
-          message: '取得類型失敗',
+          message: '取得資料失敗',
           type: 'error'
         })
       }

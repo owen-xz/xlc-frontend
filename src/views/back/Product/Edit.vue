@@ -17,7 +17,7 @@
             v-for="(item, index) in typeList"
             :key="index"
             :label="item.name"
-            :value="item._id" />
+            :value="item.id" />
         </el-select>
       </el-form-item>
       <el-form-item label="商品品項" prop="options">
@@ -97,11 +97,10 @@
 <script lang="ts" setup>
 import { ref, reactive, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { pageLoading, getTypeList } from '@/utils/mixins'
+import { useStore } from 'vuex'
+import { pageLoading, getPageList } from '@/utils/mixins'
 import { ElMessage } from 'element-plus'
 import type { FormInstance, FormRules } from 'element-plus'
-import store from '@/store'
-
 import {
   fetchProduct,
   postProduct,
@@ -111,13 +110,15 @@ import { Option } from '@/utils/api/back/product/FEModel'
 
 const route = useRoute()
 const router = useRouter()
+const store = useStore()
 
 const pageParams = reactive({
   id: route.params.id || null
 })
 
 // 取得類型
-const typeList = computed(() => store.state.typeList)
+const pageList = computed(() => store.state.pageList)
+const typeList = computed(() => pageList.value.product ? pageList.value.product.type : [])
 
 const submitFormRef = ref<FormInstance>()
 const submitForm = ref({
@@ -294,7 +295,7 @@ const sendData = async () => {
 }
 
 onMounted(async () => {
-  getTypeList()
+  getPageList('product')
   if(pageParams.id) {
     getData()
   }

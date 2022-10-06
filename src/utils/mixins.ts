@@ -4,8 +4,8 @@ export function pageLoading(status: boolean) {
   store.commit('setIsLoading', status)
 }
 
-export function getTypeList() {
-  if(!store.state.typeList.length) {
-    store.dispatch('getTypeList')
+export function getPageList(featureName: string) {
+  if(!store.state.pageList[featureName]) {
+    store.dispatch('getPageList', featureName)
   }
 }
