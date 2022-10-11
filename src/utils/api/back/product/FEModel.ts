@@ -1,6 +1,8 @@
 export interface ProductListParams {
   offset: number
   maxCount: number
+  keyword: string
+  type: string
 }
 
 export interface Option {

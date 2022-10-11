@@ -2,7 +2,11 @@
   <el-menu :default-active="defaultActive" :collapse="isCollapse" router>
     <el-menu-item index="/admin/product/list">
       <el-icon><icon-menu /></el-icon>
-      <template #title>商品列表</template>
+      <template #title>商品管理</template>
+    </el-menu-item>
+    <el-menu-item index="/admin/coupon/list">
+      <el-icon><icon-menu /></el-icon>
+      <template #title>優惠卷管理</template>
     </el-menu-item>
     <!-- 箭頭展開按鈕 -->
     <div class="sidebar-trigger" @click="toggleSideBar">

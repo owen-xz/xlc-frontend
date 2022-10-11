@@ -191,7 +191,7 @@ const handleDeleteProduct = async (id: string) => {
     {
       confirmButtonText: '刪除',
       cancelButtonText: '取消',
-      type: 'warning',
+      type: 'warning'
     }
   )
   .then(async () => {
