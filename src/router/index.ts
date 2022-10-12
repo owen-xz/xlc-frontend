@@ -3,10 +3,11 @@ import Home from '../views/Home.vue'
 import adminProductRoute from './modules/back/product'
 import adminCouponRoute from './modules/back/coupon'
 
-const backRoutes = {
-  ...adminProductRoute,
-  ...adminCouponRoute
-}
+const backRoutes = [
+  adminProductRoute,
+  adminCouponRoute
+]
+
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
@@ -27,7 +28,7 @@ const routes: Array<RouteRecordRaw> = [
     path: '/admin',
     redirect: '/admin/product/list'
   },
-  backRoutes
+  ...backRoutes
 ]
 
 const router = createRouter({
