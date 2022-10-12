@@ -5,9 +5,7 @@
 </template>
 <script lang="ts" setup>
 import { computed } from 'vue'
-import { useStore } from 'vuex'
-
-const store = useStore()
+import store from '@/store'
 
 const pageLoading = computed(() => {
   return store.state.isLoading

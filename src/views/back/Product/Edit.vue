@@ -97,7 +97,7 @@
 <script lang="ts" setup>
 import { ref, reactive, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useStore } from 'vuex'
+import store from '@/store'
 import { pageLoading, getPageList } from '@/utils/mixins'
 import { ElMessage } from 'element-plus'
 import type { FormInstance, FormRules } from 'element-plus'
@@ -110,15 +110,19 @@ import { Option } from '@/utils/api/back/product/FEModel'
 
 const route = useRoute()
 const router = useRouter()
-const store = useStore()
 
 const pageParams = reactive({
   id: route.params.id || null
 })
 
 // 取得類型
-const pageList = computed(() => store.state.pageList)
-const typeList = computed(() => pageList.value.product ? pageList.value.product.type : [])
+const typeList = computed(() => {
+  const pageList = store.state.pageList
+  if(pageList.product) {
+    return pageList.product.type
+  }
+  return []
+})
 
 const submitFormRef = ref<FormInstance>()
 const submitForm = ref({

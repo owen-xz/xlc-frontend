@@ -15,11 +15,9 @@
 </template>
 <script lang="ts" setup>
 import { computed } from 'vue'
-import { useStore } from 'vuex'
+import store from '@/store'
 import Navbar from '@/components/Navbar.vue'
 import Sidebar from '@/components/Sidebar.vue'
-
-const store = useStore()
 
 const sidebarWidth = computed(() => {
   return store.state.isSidebarCollapse ? '64px' : '200px'

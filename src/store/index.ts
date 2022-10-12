@@ -1,21 +1,13 @@
-import { createStore } from 'vuex'
+import Vuex, { StoreOptions } from 'vuex'
+import { RootState } from './type'
 import { fetchPageList } from '@/utils/api/back/common'
 import { ElMessage } from 'element-plus'
 
-interface PageList {
-  [key: string]: {
-    [key: string]: {
-      id: number
-      name: string
-    }[]
-  }
-}
-
-export default createStore({
+const store: StoreOptions<RootState> = {
   state: {
     isLoading: false,
     isSidebarCollapse: false,
-    pageList: {} as PageList
+    pageList: {}
   },
   mutations: {
     setIsLoading(state, payload) {
@@ -50,4 +42,6 @@ export default createStore({
   },
   modules: {
   }
-})
+}
+
+export default new Vuex.Store<RootState>(store);

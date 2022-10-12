@@ -39,7 +39,7 @@
       <el-table-column prop="name" label="商品名稱" min-width="200" />
       <el-table-column prop="type" label="類型" width="80">
         <template #default="scope">
-          <span>{{ scope.row.type.name }}</span>
+          <span>{{ filterTypeName(scope.row.type) }}</span>
         </template>
       </el-table-column>
       <el-table-column label="品項" width="120">
@@ -101,16 +101,26 @@
 <script lang="ts" setup>
 import { ref, reactive, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { useStore } from 'vuex'
+import store from '@/store'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { pageLoading, getPageList } from '@/utils/mixins'
 import { fetchProductList, deleteProduct } from '@/utils/api/back/product'
 
 const router = useRouter()
-const store = useStore()
 
-const pageList = computed(() => store.state.pageList)
-const typeList = computed(() => pageList.value.product ? pageList.value.product.type : [])
+// 取得類型
+const typeList = computed(() => {
+  const pageList = store.state.pageList
+  if(pageList.product) {
+    return pageList.product.type
+  }
+  return []
+})
+const filterTypeName = (type: number) => {
+  const typeData = typeList.value.find(item => item.id === type)
+  return typeData ? typeData.name : ''
+}
+
 const pageParams = reactive({
   maxCount: 10,
   currentPage: 1,
@@ -171,6 +181,7 @@ const clear = () => {
   currentChange(1)
 }
 
+// 新增編輯
 const goEdit = (id: string | null) => {
   if(id !== null) {
     router.push({
@@ -184,6 +195,7 @@ const goEdit = (id: string | null) => {
   }
 }
 
+// 刪除商品
 const handleDeleteProduct = async (id: string) => {
   ElMessageBox.confirm(
     '確定要刪除此商品嗎？',
