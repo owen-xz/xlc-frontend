@@ -91,7 +91,7 @@
         layout="prev, pager, next"
         :page-size="pageParams.maxCount"
         :total="pageParams.total"
-        :current-page="pageParams.current"
+        :current-page="pageParams.currentPage"
         @current-change="currentChange"
       />
     </div>
@@ -124,7 +124,6 @@ const filterTypeName = (type: number) => {
 const pageParams = reactive({
   maxCount: 10,
   currentPage: 1,
-  totalPage: 1,
   total: 0
 })
 const filterData = ref({
@@ -150,7 +149,6 @@ const getList =  async () => {
     pageLoading(false)
     listData.value = res.data.products
     pageParams.total = res.data.total
-    pageParams.totalPage = Math.ceil(pageParams.total / pageParams.maxCount)
     for(let i = 0; i < pageParams.total; i ++) {
       selectedOptionsIndex.value.push(0)
     }

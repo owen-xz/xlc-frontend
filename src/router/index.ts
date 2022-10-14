@@ -2,10 +2,12 @@ import { createRouter, createWebHashHistory, RouteRecordRaw } from 'vue-router'
 import Home from '../views/Home.vue'
 import adminProductRoute from './modules/back/product'
 import adminCouponRoute from './modules/back/coupon'
+import adminOrderRoute from './modules/back/order'
 
 const backRoutes = [
   adminProductRoute,
-  adminCouponRoute
+  adminCouponRoute,
+  adminOrderRoute
 ]
 
 const routes: Array<RouteRecordRaw> = [

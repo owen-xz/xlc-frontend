@@ -184,7 +184,7 @@ const validateDiscount = (rule: any, value: any, callback: any) => {
 }
 const submitFormRules = reactive<FormRules>({
   couponSn: [{ required: true, message: '請輸入優惠券序號', trigger: 'blur' }],
-  discount: [{ validator: validateDiscount, trigger: 'blur' }],
+  discount: [{ validator: validateDiscount, required: true, trigger: 'blur' }],
   effectiveAt: [{ required: true, message: '請選擇有效時間', trigger: 'blur' }],
 })
 

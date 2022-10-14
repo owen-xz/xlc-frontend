@@ -1,12 +1,16 @@
 <template>
-  <el-menu :default-active="defaultActive" :collapse="isCollapse" router>
-    <el-menu-item index="/admin/product/list">
+  <el-menu :default-active="defaultActive" :collapse="isCollapse" @select="selectMenu">
+    <el-menu-item index="product">
       <el-icon><icon-menu /></el-icon>
       <template #title>商品管理</template>
     </el-menu-item>
-    <el-menu-item index="/admin/coupon/list">
+    <el-menu-item index="coupon">
       <el-icon><icon-menu /></el-icon>
       <template #title>優惠卷管理</template>
+    </el-menu-item>
+    <el-menu-item index="order">
+      <el-icon><icon-menu /></el-icon>
+      <template #title>訂單管理</template>
     </el-menu-item>
     <!-- 箭頭展開按鈕 -->
     <div class="sidebar-trigger" @click="toggleSideBar">
@@ -20,7 +24,7 @@
 
 <script lang="ts" setup>
 import { ref, computed } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import store from '@/store'
 import {
   Menu as IconMenu,
@@ -29,8 +33,13 @@ import {
 } from '@element-plus/icons-vue'
 
 const route = useRoute()
+const router = useRouter()
 
-const defaultActive = ref(route.path)
+const defaultActive = ref(route.path.split('/')[2])
+const selectMenu = (index: string) => {
+  router.push(`/admin/${index}`)
+}
+
 const isCollapse = computed(() => store.state.isSidebarCollapse)
 const toggleSideBar = () => {
   store.commit('setIsSidebarCollapse', !isCollapse.value)
