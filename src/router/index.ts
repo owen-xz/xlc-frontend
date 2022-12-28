@@ -1,9 +1,12 @@
 import { createRouter, createWebHashHistory, RouteRecordRaw } from 'vue-router'
-import Home from '../views/Home.vue'
+import homeRoute from './modules/front/index'
 import adminProductRoute from './modules/back/product'
 import adminCouponRoute from './modules/back/coupon'
 import adminOrderRoute from './modules/back/order'
 
+const frontRoutes = [
+  homeRoute
+]
 const backRoutes = [
   adminProductRoute,
   adminCouponRoute,
@@ -11,11 +14,6 @@ const backRoutes = [
 ]
 
 const routes: Array<RouteRecordRaw> = [
-  {
-    path: '/',
-    name: 'Home',
-    component: Home
-  },
   {
     path: '/login',
     name: 'Login',
@@ -30,6 +28,7 @@ const routes: Array<RouteRecordRaw> = [
     path: '/admin',
     redirect: '/admin/product/list'
   },
+  ...frontRoutes,
   ...backRoutes
 ]
 

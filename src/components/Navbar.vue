@@ -1,20 +1,27 @@
 <template>
   <div class="navbar">
     <div class="logo">Title</div>
-    <el-dropdown trigger="click" popper-class="navbar-popper">
-      <span class="el-dropdown-link">
-        <span class="userName">{{ userName }}</span>
-        <el-icon>
-          <arrow-down />
-        </el-icon>
-      </span>
-      <template #dropdown>
-        <el-dropdown-menu>
-          <el-dropdown-item @click="router.push('/')">首頁</el-dropdown-item>
-          <el-dropdown-item>登出</el-dropdown-item>
-        </el-dropdown-menu>
+    <span class="drawer-link" @click="drawer = true">
+      <span class="userName">{{ userName }}</span>
+      <el-icon>
+        <arrow-down />
+      </el-icon>
+    </span>
+    <el-drawer v-model="drawer" :direction="direction" custom-class="navbar-drawer" :append-to-body="true">
+      <template #default>
+        <div class="menu">
+          <div class="menu-item">
+            <router-link to="/">首頁</router-link>
+          </div>
+          <div class="menu-item">
+            <router-link to="/admin">管理後臺</router-link>
+          </div>
+          <div class="menu-item">
+            <router-link to="/">登出</router-link>
+          </div>
+        </div>
       </template>
-    </el-dropdown>
+    </el-drawer>
   </div>
 </template>
 
@@ -26,6 +33,8 @@ import { ArrowDown } from '@element-plus/icons-vue'
 const router = useRouter()
 
 const userName = ref('')
+const drawer = ref(false)
+
 onMounted(() => {
   if(localStorage.getItem('userInfo')) {
     userName.value = JSON.parse(localStorage.getItem('userInfo') as string).name
@@ -45,7 +54,7 @@ onMounted(() => {
       margin-left: 20px;
       font-size: 24px;
     }
-    .el-dropdown-link {
+    .drawer-link {
       cursor: pointer;
       margin-right: 20px;
       .userName {
@@ -56,9 +65,24 @@ onMounted(() => {
   }
 </style>
 <style lang="scss">
-  .navbar-popper {
-    .el-dropdown-menu__item {
-      padding: 10px 30px;
+  .navbar-drawer {
+    .el-drawer__body {
+      padding: 0;
+      .menu {
+        list-style: none;
+        width: 100%;
+        .menu-item a {
+          display: block;
+          padding: 15px 50px;
+          border-bottom: 1px solid $systemBorderGray;
+          color: #000;
+          transition: all 0.3s;
+          &:hover {
+            background-color: $primaryColor;
+            color: #fff;
+          }
+        }
+      }
     }
   }
 </style>
